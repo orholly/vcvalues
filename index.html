@@ -190,7 +190,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                             </svg>
-                            You Crave... (What Energizes You)
+                            You Crave... (Energizers)
                         </h4>
                         <div id="resultsCraves" class="space-y-4">
                            <!-- Craves content will be inserted here -->
@@ -202,7 +202,7 @@
                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                               <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
                            </svg>
-                            You're Crushed By... (What Drains You)
+                            You're Crushed By... (Drainers)
                         </h4>
                         <div id="resultsCrushes" class="space-y-4">
                            <!-- Crushes content will be inserted here -->
@@ -210,23 +210,31 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- How to Work with Me Section (Prominent) -->
+            <div class="bg-gray-800/20 rounded-xl p-6 md:p-8 mb-8 shadow-lg backdrop-blur-sm border border-gray-700">
+                <h3 class="text-2xl font-extrabold mb-4 text-brand-blue">How to Work With Me</h3>
+                <div id="howToWorkContainer" class="space-y-3 text-gray-300">
+                    <!-- How to work with me tips will be inserted here -->
+                </div>
+            </div>
 
 
-            <!-- Main Content Grid -->
+            <!-- Final 2-Column Section -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Values Alignment Spectrum -->
                 <div class="bg-gray-800/20 rounded-xl p-6 md:p-8 shadow-lg backdrop-blur-sm border border-gray-700">
-                    <h3 class="text-2xl font-extrabold mb-6">Your Values Alignment Spectrum</h3>
+                    <h3 class="text-2xl font-extrabold mb-6">Your Values Alignment</h3>
                     <p class="text-gray-400 mb-6 -mt-4 font-semibold">Click on a value to see the 'why' behind its rank.</p>
                     <div id="valuesSpectrum" class="space-y-4">
                         <!-- Value bars will be inserted here -->
                     </div>
                 </div>
 
-                <!-- Right Column for Strengths, Growth, and How to Work -->
+                <!-- Right Column for Strengths, Growth -->
                 <div class="space-y-8">
                     <div class="bg-gray-800/20 rounded-xl p-6 md:p-8 shadow-lg backdrop-blur-sm border border-gray-700">
-                        <h3 class="text-2xl font-extrabold mb-4 text-brand-teal">Lean Into Your Strengths</h3>
+                        <h3 class="text-2xl font-extrabold mb-4 text-brand-teal">Lean Into Your Top Values</h3>
                         <div id="strengthsContainer" class="space-y-4 text-gray-300">
                             <!-- Strengths will be inserted here -->
                         </div>
@@ -235,13 +243,6 @@
                         <h3 class="text-2xl font-extrabold mb-4 text-brand-yellow">Your Growth Opportunity</h3>
                         <div id="growthContainer" class="space-y-4 text-gray-300">
                             <!-- Growth area will be inserted here -->
-                        </div>
-                    </div>
-                    <!-- How to Work with Me Section -->
-                    <div class="bg-gray-800/20 rounded-xl p-6 md:p-8 shadow-lg backdrop-blur-sm border border-gray-700">
-                        <h3 class="text-2xl font-extrabold mb-4 text-brand-blue">How to Work With Me</h3>
-                        <div id="howToWorkContainer" class="space-y-3 text-gray-300">
-                            <!-- How to work with me tips will be inserted here -->
                         </div>
                     </div>
                 </div>
@@ -257,7 +258,7 @@
                     Back to My Profile
                 </button>
             <div id="teammateSelection" class="text-center">
-                <h2 class="text-3xl font-extrabold mb-4">Select a Teammate to Compare</h2>
+                <h2 class="text-3xl font-extrabold mb-4">Select a Profile to Compare</h2>
                 <div id="teammatePairingGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                     <!-- Teammate pairing cards will be inserted here -->
                 </div>
@@ -271,7 +272,7 @@
                     <div id="user2Profile" class="bg-gray-800/20 rounded-xl p-6 shadow-lg border-2 border-brand-teal"></div>
                  </div>
                  <div class="mt-8 bg-gray-800/20 rounded-xl p-6 shadow-lg">
-                    <h3 class="text-2xl font-extrabold mb-4 text-center">Team Dynamics</h3>
+                    <h3 class="text-2xl font-extrabold mb-4 text-center">Collaboration Styles</h3>
                     <div id="dynamicsResults" class="grid grid-cols-1 md:grid-cols-2 gap-8">
                        <!-- Synergies and Frictions will be injected here -->
                     </div>
@@ -562,8 +563,8 @@ document.addEventListener('DOMContentLoaded', () => {
         teammateSelection.classList.add('hidden');
         comparisonView.classList.remove('hidden');
 
-        user1Profile.innerHTML = generateProfileHTML(user1Data, 'You', 'border-brand-blue');
-        user2Profile.innerHTML = generateProfileHTML(user2Data, 'Your Teammate', 'border-brand-teal');
+        user1Profile.innerHTML = generateProfileHTML(user1Data, 'Your Profile', 'border-brand-blue');
+        user2Profile.innerHTML = generateProfileHTML(user2Data, 'Their Profile', 'border-brand-teal');
         
         const dynamics = calculateTeamDynamics(currentUserPairingId, teammateId);
         
@@ -587,7 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function generateProfileHTML(data, role, borderColor) {
        return `
             <div class="text-center">
-                <p class="font-bold text-sm uppercase tracking-wider ${role === 'You' ? 'text-brand-blue' : 'text-brand-teal'}">${role}</p>
+                <p class="font-bold text-sm uppercase tracking-wider ${role === 'Your Profile' ? 'text-brand-blue' : 'text-brand-teal'}">${role}</p>
                 <h3 class="text-2xl font-extrabold">${data.title}</h3>
                 <div class="flex justify-center my-4">${data.gears.map(createGearSVG).join('')}</div>
             </div>
@@ -664,6 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
             card.className = `pairing-card rounded-xl text-center cursor-pointer flex flex-col justify-center items-center h-48 p-4 gradient-animate ${gradientClass}`;
             card.dataset.pairing = pairing.id;
             card.innerHTML = `
+                <div class="absolute inset-0 bg-black/50 z-0"></div>
                 <div class="relative z-10 flex flex-col justify-center items-center h-full text-shadow-lg">
                     <h3 class="text-lg font-extrabold text-white leading-tight" style="text-shadow: 1px 1px 4px rgba(0,0,0,0.8);">
                         ${pairing.title}
