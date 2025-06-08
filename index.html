@@ -96,6 +96,12 @@
         .gradient-13 { background-image: linear-gradient(45deg, #2dacb2, #d03c40, #2f1749); }
         .gradient-14 { background-image: linear-gradient(45deg, #0388b3, #d8ba0f, #d03c40); }
         .gradient-15 { background-image: linear-gradient(45deg, #2f1749, #2dacb2, #d8ba0f); }
+        
+        .filter-btn.active {
+            background-color: #0388b3; /* brand-blue */
+            color: white;
+            box-shadow: 0 0 15px rgba(3, 136, 179, 0.7);
+        }
 
     </style>
 </head>
@@ -109,9 +115,23 @@
         <!-- Screen 1: Selection -->
         <div id="selectionScreen" class="screen visible-screen">
             <div class="text-center mb-10">
-                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-2 bg-clip-text text-transparent bg-gradient-to-r from-brand-teal to-brand-blue">Victory Values & Genius Navigator</h1>
+                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-2 pb-2 bg-clip-text text-transparent bg-gradient-to-r from-brand-teal to-brand-blue">Victory Values & Genius Navigator</h1>
                 <p class="text-lg md:text-xl text-gray-400 font-semibold">Discover how your unique genius connects with our core values.</p>
             </div>
+            
+            <!-- Search and Filter Controls with Tooltips -->
+            <div class="mb-8 p-4 bg-gray-800/20 rounded-xl backdrop-blur-sm border border-gray-700">
+                <div class="flex flex-col md:flex-row gap-4 items-center">
+                    <input type="text" id="searchInput" placeholder="Search by pairing name..." class="w-full md:w-1/3 p-2 rounded-lg bg-gray-700 text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-blue" title="Search by pairing name (e.g., 'Dreamer', 'Driver').">
+                    <div class="flex-grow">
+                        <h4 class="font-semibold text-gray-300 mb-2 text-left md:text-center">Click to Filter by Genius</h4>
+                        <div id="filterContainer" class="flex flex-wrap gap-2 justify-start md:justify-center" title="Click one or more geniuses to filter the grid. Click again to remove a filter.">
+                            <!-- Filter buttons will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div id="pairingGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                 <!-- Pairing cards will be inserted here by JavaScript -->
             </div>
@@ -284,6 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- STATE MANAGEMENT ---
     let currentUserPairingId = null;
+    let activeFilters = new Set();
     
     // --- DYNAMICS PROFILES for Pace & Focus Model ---
     const dynamicsProfiles = {
@@ -317,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'wi': {"id":"wi","title":"The Creative Dreamer","description":"Passionate about new possibilities, they generate a fountain of new ideas and contemplate the world around them.","gears":["W","I"],"craves":["Consideration","Freedom"],"crushes":["Being Dismissed","Constraint"],"howToWorkWithMe":["Give me space to brainstorm without judgment.","Ask \"what if...\" questions with me instead of immediately pointing out roadblocks.","Don't box me in with too many rules and restrictions early in the creative process."],"values":[{"name":"Courageous","rank":1,"rationale":"This value is most important as it directly enables the Freedom you crave. You must have the courage to \"get out of the Boat\" and pursue new, risky, and future-oriented ideas that break boundaries.","connectsTo":"Freedom","color":"bg-brand-red"},{"name":"Kind","rank":2,"rationale":"A kind environment where people \"believe the best about others\" fosters the psychological safety needed for your ideas to receive the genuine Consideration you crave.","connectsTo":"Consideration","color":"bg-brand-yellow"},{"name":"Empowering","rank":3,"rationale":"To feel the Freedom to innovate, you need a culture that recognizes your competency and is willing to nurture and release your creative greatness.","connectsTo":"Freedom","color":"bg-brand-teal"},{"name":"Connected","rank":4,"rationale":"Collaboration ensures the team is aligned and willing to give Consideration to your idealistic and unconventional ideas.","connectsTo":"Consideration","color":"bg-brand-blue"},{"name":"Humble","rank":5,"rationale":"While the \"fail forward\" aspect is relevant for any innovator, this value is less of a primary driver for you compared to the others.","connectsTo":"N/A","color":"bg-brand-purple"}],"strengths":[{"title":"Courageous","text":"Embrace risk and dream big. Your courage to explore the unknown is a gift to the team."},{"title":"Kind","text":"Foster a safe space for ideas. Your kindness encourages others to think creatively alongside you."}],"growth":{"title":"Humble","text":"While you generate ideas, remember to \"fail forward.\" Acknowledging when an idea doesn't work builds trust and invites collaboration.","challenge":"This week, how can you invite someone to critique one of your new ideas to make it stronger?"}},
         'wd': {"id":"wd","title":"The Contemplative Counselor","description":"Deriving joy from using their intuition to evaluate ideas and provide thoughtful feedback to others.","gears":["W","D"],"craves":["Consideration","Trust"],"crushes":["Being Dismissed","\"Prove It\""],"howToWorkWithMe":["Trust my intuition, even if I can't articulate all the data yet.","Give me adequate time to process before asking for a final opinion.","Ask for my gut feeling on a plan or idea; that's where I provide the most value."],"values":[{"name":"Empowering","rank":1,"rationale":"This value is crucial because it fosters the Trust you need from others. An empowering culture recognizes you as a \"gold miner\" of insight, thereby trusting your intuitive judgment without demanding hard proof.","connectsTo":"Trust","color":"bg-brand-teal"},{"name":"Connected","rank":2,"rationale":"To provide effective counsel, you must be approachable. This connection builds the relational capital needed for your instincts to be Trusted and your questions given Consideration.","connectsTo":"Trust & Consideration","color":"bg-brand-blue"},{"name":"Kind","rank":3,"rationale":"A kind and \"tenderhearted\" approach is essential for creating an environment where your deep, evaluative insights can be shared and received openly, ensuring you get the Consideration you require.","connectsTo":"Consideration","color":"bg-brand-yellow"},{"name":"Courageous","rank":4,"rationale":"This value is expressed when you \"lead yourself\" to deliver necessary feedback through \"courageous and loving conversations,\" even when the insights are challenging to hear.","connectsTo":"N/A","color":"bg-brand-red"},{"name":"Humble","rank":5,"rationale":"Because you can be hesitant to declare certainty, a humble culture that allows you to \"fail forward\" gives you the freedom to offer your judgments without the pressure of being perfect.","connectsTo":"N/A","color":"bg-brand-purple"}],"strengths":[{"title":"Empowering","text":"Your greatest strength is providing wise counsel. Offer your insights generously to empower others."},{"title":"Connected","text":"Build relationships so your counsel lands on fertile ground. Your connection makes your wisdom accessible."}],"growth":{"title":"Humble","text":"Don't let the fear of being wrong hold you back. Trust your gut and share your insights, even if you don't feel 100% certain.","challenge":"Where can you offer your perspective this week, even if you feel hesitant?"}},
         'wg': {"id":"wg","title":"The Philosophical Motivator","description":"Idealistic and enthusiastic, they contemplate potential and passionately exhort and encourage others to act.","gears":["W","G"],"craves":["Consideration","Reaction"],"crushes":["Being Dismissed","Apathy"],"howToWorkWithMe":["Engage with my ideas, even if it's just to debate them.","Show enthusiasm and energy for the possibilities I present.","I thrive on a reaction; silence can feel like disapproval or a lack of interest."],"values":[{"name":"Empowering","rank":1,"rationale":"This value directly aligns with your desire to get a Reaction. You passionately encourage others, and \"Empowering\" is about inspiring people to action, which is the very reaction you want to see.","connectsTo":"Reaction"},{"name":"Connected","rank":2,"rationale":"Connection is the vehicle for your motivation. You unite people around a vision (\"pull on the same rope\"), and your calls to action require a connected audience to generate the Reaction you seek.","connectsTo":"Reaction"},{"name":"Kind","rank":3,"rationale":"Your enthusiastic and optimistic nature (\"Tigger, not Eeyore\") is the primary tool you use to inspire others. This positive approach is what elicits the engagement and Reaction you crave.","connectsTo":"Reaction"},{"name":"Courageous","rank":4,"rationale":"The courage to \"say yes to God, even if it is risky\" fuels your passionate exhortations and gives your call to action authenticity and power.","connectsTo":"N/A"},{"name":"Humble","rank":5,"rationale":"Your impulsivity can lead to missteps, so owning mistakes (\"fail forward\") is important for maintaining the credibility needed to effectively motivate others.","connectsTo":"N/A"}],"strengths":[{"title":"Empowering","text":"You are a natural motivator. Use your passion to rally the team and get them excited about the mission."},{"title":"Connected","text":"Your ability to unite people is a superpower. Focus on building a shared vision to direct your motivational energy."}],"growth":{"title":"Humble","text":"Your passion is powerful, but can sometimes be impulsive. Temper your enthusiasm with humility to ensure your message is received well.","challenge":"Before you rally the troops this week, ask one trusted person for their perspective on your idea."}},
-        'we': {"id":"we","title":"The Idealistic Supporter","description":"Loyal, selfless, and modest, they provide meaningful support to causes that align with their values.","gears":["W","E"],"craves":["Consideration","Appreciation"],"crushes":["Being Dismissed","Being Overlooked"],"howToWorkWithMe":["A simple \"thank you\" for my help goes a very long way.","Let me know specifically how my support made a difference to you or the project.","I'm always here to help the team, so please don't hesitate to ask."],"values":[{"name":"Humble","rank":1,"rationale":"Humility is your natural posture. You are a selfless, loyal team member who \"wears their titles as towels.\" This value is paramount because your core crave is for this humble, servant-heartedness to receive Appreciation.","connectsTo":"Appreciation"},{"name":"Connected","rank":2,"rationale":"As a natural team player, you thrive in a collaborative culture where \"people are our purpose.\" This environment of connection ensures you feel valued and receive the Consideration and Appreciation you need.","connectsTo":"Appreciation & Consideration"},{"name":"Kind","rank":3,"rationale":"You serve by \"walking in love and joy.\" A kind culture acknowledges and values your supportive efforts, which directly feeds your need for Appreciation.","connectsTo":"Appreciation"},{"name":"Empowering","rank":4,"rationale":"You are an enabler who helps release greatness in others. The value of Empowering affirms your contribution, which helps you feel the Appreciation you crave.","connectsTo":"Appreciation"},{"name":"Courageous","rank":5,"rationale":"This is a challenge for you. Your desire to please and defer to others can make it difficult to \"get out of the boat\" or initiate the courageous conversations this value requires.","connectsTo":"N/A"}],"strengths":[{"title":"Humble","text":"Your servant heart is a cornerstone of our team. Continue to serve selflessly, knowing your contribution is deeply valued."},{"title":"Connected","text":"You are a team player through and through. Use your supportive nature to strengthen the bonds within our team."}],"growth":{"title":"Courageous","text":"Your desire to help is wonderful, but don't be afraid to voice your own thoughts or set boundaries. Your perspective has value!","challenge":"This week, find one opportunity to share your opinion in a meeting, even if it feels uncomfortable."}},
+        'we': {"id":"we","title":"The Idealistic Supporter","description":"Loyal, selfless, and modest, they provide meaningful support to causes that align with their values.","gears":["W","E"],"craves":["Consideration","Appreciation"],"crushes":["Being Dismissed","Being Overlooked"],"howToWorkWithMe":["A simple \"thank you\" for my help goes a very long way.","Let me know specifically how my support made a difference to you or the project.","I'm always here to help the team, so please don't hesitate to ask."],"values":[{"name":"Humble","rank":1,"rationale":"Humility is your natural posture. You are a selfless, loyal team member who \"wears their titles as towels.\" This value is paramount because your core crave is for this humble, servant-heartedness to receive Appreciation.","connectsTo":"Appreciation"},{"name":"Connected","rank":2,"rationale":"As a natural team player, you thrive in a collaborative culture where \"people are our purpose.\" This environment of connection ensures you feel valued and receive the Consideration and Appreciation you need.","connectsTo":"Appreciation & Consideration"},{"name":"Kind","rank":3,"rationale":"You serve by \"walking in love and joy.\" A kind culture acknowledges and values your supportive efforts, which directly feeds your need for Appreciation.","connectsTo":"Appreciation"},{"name":"Empowering","rank":4,"rationale":"You are an enabler who helps release greatness in others. The value of Empowering affirms your contribution, which helps you feel the Appreciation you crave.","connectsTo":"Appreciation"},{"name":"Courageous","rank":5,"rationale":"This is your main challenge. Your desire to please and defer to others can make it difficult to \"get out of the boat\" or initiate the courageous conversations this value requires.","connectsTo":"N/A"}],"strengths":[{"title":"Humble","text":"Your servant heart is a cornerstone of our team. Continue to serve selflessly, knowing your contribution is deeply valued."},{"title":"Connected","text":"You are a team player through and through. Use your supportive nature to strengthen the bonds within our team."}],"growth":{"title":"Courageous","text":"Your desire to help is wonderful, but don't be afraid to voice your own thoughts or set boundaries. Your perspective has value!","challenge":"This week, find one opportunity to share your opinion in a meeting, even if it feels uncomfortable."}},
         'wt': {"id":"wt","title":"The Careful Implementer","description":"A mysterious mix of practicality and inquisitiveness, they get things done in a thorough and reliable way.","gears":["W","T"],"craves":["Consideration","Clarity"],"crushes":["Being Dismissed","Ambiguity"],"howToWorkWithMe":["Provide clear goals, deadlines, and parameters for the best results.","Be patient if I ask a lot of questions; I do it to ensure quality and avoid mistakes.","Please avoid changing the plan or the expectations at the last minute."],"values":[{"name":"Connected","rank":1,"rationale":"To implement things well, you need the Clarity that comes from a shared vision. \"Pulling on the same rope\" ensures that standards and goals are clear and collaborative.","connectsTo":"Clarity"},{"name":"Empowering","rank":2,"rationale":"The \"hand over the keys\" aspect of this value provides the clear parameters and training you need to work effectively. This gives you the Clarity you crave before starting a task.","connectsTo":"Clarity"},{"name":"Courageous","rank":3,"rationale":"Your need to \"slow down and ask questions\" to ensure a project's success is an act of courage, as it may challenge a team's desire for speed. This is doing what is right over what is fast.","connectsTo":"Consideration"},{"name":"Humble","rank":4,"rationale":"A \"fail forward\" culture is supportive for you, as you feel angst about potential problems. It creates a safe space to ask clarifying questions and own mistakes that may arise from ambiguity.","connectsTo":"N/A"},{"name":"Kind","rank":5,"rationale":"While you appreciate a positive environment, your primary drivers are more about process, rationale, and understanding (Clarity and Consideration) than overt enthusiasm.","connectsTo":"N/A"}],"strengths":[{"title":"Connected","text":"You ensure the team is aligned on the \"what\" and \"why.\" Keep asking the questions that lead to clarity for everyone."},{"title":"Empowering","text":"You excel when given clear parameters. Ask for the clarity you need to execute tasks with excellence."}],"growth":{"title":"Kind","text":"Your focus on thoroughness is vital. Remember to balance your drive for precision with kindness, especially when pointing out potential flaws.","challenge":"When you need to ask a clarifying question this week, start by affirming the good work that has already been done."}},
         'id': {"id":"id","title":"The Discriminating Ideator","description":"Using intuition and integrative thinking, they excel at solving problems and creating workable solutions.","gears":["I","D"],"craves":["Freedom","Trust"],"crushes":["Constraint","\"Prove It\""],"howToWorkWithMe":["Trust my ability to find a workable solution, even if my path is unconventional.","Give me a complex problem and the freedom to solve it my way.","Let's not get bogged down by \"how we've always done it\"."],"values":[{"name":"Empowering","rank":1,"rationale":"This value is essential as it grants you the Trust you crave. An empowering culture trusts your intuitive judgment, releasing you to solve problems without being crushed by demands to \"prove it.\"","connectsTo":"Trust"},{"name":"Courageous","rank":2,"rationale":"Courage enables the Freedom you need to act. You must have the courage to \"get out of the boat\" and champion new ideas based on your instincts rather than conventional data.","connectsTo":"Freedom"},{"name":"Humble","rank":3,"rationale":"Humility provides balance. Since you can appear \"impatient and over-confident,\" practicing humility by \"failing forward\" helps build the relational Trust you need from your team.","connectsTo":"Trust"},{"name":"Connected","rank":4,"rationale":"This can be a point of tension. Your tendency to \"lose interest after the initial phase of Invention\" can conflict with the sustained collaboration required by this value.","connectsTo":"N/A"},{"name":"Kind","rank":5,"rationale":"This is less of a focus. Your drive for practical, workable solutions can sometimes lead you to overlook the \"tenderhearted\" or human side of a situation.","connectsTo":"N/A"}],"strengths":[{"title":"Empowering","text":"Your innovative solutions empower the entire team. Trust your gut and share your ideas freely."},{"title":"Courageous","text":"You're not afraid to challenge the status quo with new ideas. This courage is a catalyst for breakthrough."}],"growth":{"title":"Kind","text":"Your ideas are brilliant. To help them land well, be mindful of the human element and deliver your insights with kindness.","challenge":"When presenting a new solution this week, take a moment to consider and acknowledge how it will affect the people involved."}},
         'ig': {"id":"ig","title":"The Evangelizing Innovator","description":"Exuberant and enthusiastic, they love generating new ideas and enjoy the challenge of convincing others to act.","gears":["I","G"],"craves":["Freedom","Reaction"],"crushes":["Constraint","Apathy"],"howToWorkWithMe":["Let me run with a new idea and get people excited about it.","Show your engagement and energy; I feed off the team's enthusiasm.","I'm always ready to champion new initiatives and sell the vision."],"values":[{"name":"Courageous","rank":1,"rationale":"This value perfectly merges your two craves. It provides the Freedom to generate ideas and the guts to \"get out of the boat\" and share them, generating the enthusiastic Reaction you live for.","connectsTo":"Freedom & Reaction"},{"name":"Empowering","rank":2,"rationale":"This is the value you enact. You empower others by convincing them of an idea's merit. You need an environment that gives you the Freedom to innovate and inspire.","connectsTo":"Freedom"},{"name":"Kind","rank":3,"rationale":"Your \"exuberant and enthusiastic\" approach is a clear example of being \"Tigger, not Eeyore.\" This optimism is key to winning people over and getting the Reaction you need.","connectsTo":"Reaction"},{"name":"Connected","rank":4,"rationale":"You need an audience. The Connected value provides the collaborative team (\"pull on the same rope\") that you can rally around your vision and ideas.","connectsTo":"N/A"},{"name":"Humble","rank":5,"rationale":"This is a growth opportunity. Your tendency to be \"hasty\" or \"over-the-top\" can be tempered by a humble, \"fail forward\" mindset, which adds credibility to your ideas.","connectsTo":"N/A"}],"strengths":[{"title":"Courageous","text":"You are a fearless evangelist for new ideas. Use this courage to champion innovation across the organization."},{"title":"Empowering","text":"You inspire action. Continue to use your enthusiasm to empower others and bring great ideas to life."}],"growth":{"title":"Humble","text":"Your enthusiasm is infectious! To ensure it lands with credibility, pause to listen and incorporate others' feedback before you start evangelizing.","challenge":"This week, before you champion a new idea, ask for one piece of critical feedback and incorporate it."}},
@@ -428,6 +449,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const backButton = document.getElementById('backButton');
     const compareButton = document.getElementById('compareButton');
     const backToResultsButton = document.getElementById('backToResultsButton');
+    const searchInput = document.getElementById('searchInput');
+    const filterContainer = document.getElementById('filterContainer');
     
     const resultsHeader = document.getElementById('resultsHeader');
     const resultsDescription = document.getElementById('resultsDescription');
@@ -568,26 +591,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h3 class="text-2xl font-extrabold">${data.title}</h3>
                 <div class="flex justify-center my-4">${data.gears.map(createGearSVG).join('')}</div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                 <div>
-                    <h5 class="font-bold text-brand-teal mb-2">Craves:</h5>
+            <div class="space-y-4">
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                     <div>
+                        <h5 class="font-bold text-brand-teal mb-2">Craves:</h5>
+                        <ul class="list-disc list-inside text-sm text-gray-300 space-y-1">
+                            ${data.craves.map(crave => `<li>${crave}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-brand-red mb-2">Crushed By:</h5>
+                        <ul class="list-disc list-inside text-sm text-gray-300 space-y-1">
+                            ${data.crushes.map(crush => `<li>${crush}</li>`).join('')}
+                        </ul>
+                    </div>
+                     <div class="pt-4 border-t border-gray-700">
+                        <h5 class="font-bold text-brand-yellow mb-2">Natural Pace:</h5>
+                        <p class="text-sm text-gray-300">${data.pace}</p>
+                    </div>
+                    <div class="pt-4 border-t border-gray-700">
+                        <h5 class="font-bold text-brand-purple mb-2">Natural Focus:</h5>
+                        <p class="text-sm text-gray-300">${data.focus}</p>
+                    </div>
+                </div>
+                <div class="pt-4 border-t border-gray-700 mt-4">
+                    <h5 class="font-bold text-brand-blue mb-2">How to Work With Me:</h5>
                     <ul class="list-disc list-inside text-sm text-gray-300 space-y-1">
-                        ${data.craves.map(crave => `<li>${crave}</li>`).join('')}
+                        ${data.howToWorkWithMe.map(tip => `<li>${tip}</li>`).join('')}
                     </ul>
-                </div>
-                <div>
-                    <h5 class="font-bold text-brand-red mb-2">Crushed By:</h5>
-                    <ul class="list-disc list-inside text-sm text-gray-300 space-y-1">
-                        ${data.crushes.map(crush => `<li>${crush}</li>`).join('')}
-                    </ul>
-                </div>
-                 <div class="pt-4 border-t border-gray-700">
-                    <h5 class="font-bold text-brand-yellow mb-2">Natural Pace:</h5>
-                    <p class="text-sm text-gray-300">${data.pace}</p>
-                </div>
-                <div class="pt-4 border-t border-gray-700">
-                    <h5 class="font-bold text-brand-purple mb-2">Natural Focus:</h5>
-                    <p class="text-sm text-gray-300">${data.focus}</p>
                 </div>
             </div>
        `;
@@ -617,12 +648,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const uniquePairings = Object.values(pairingsData).filter((p, i, a) => a.findIndex(t => t.title === p.title) === i);
     
     function populateGrid(gridElement, callback) {
+        const searchTerm = searchInput.value.toLowerCase();
         gridElement.innerHTML = '';
-        uniquePairings.forEach((pairing, index) => {
-            if (gridElement.id === 'teammatePairingGrid' && pairing.id === currentUserPairingId) return;
-
+        uniquePairings
+            .filter(pairing => {
+                const titleMatch = pairing.title.toLowerCase().includes(searchTerm);
+                const filterMatch = activeFilters.size === 0 || pairing.gears.some(g => activeFilters.has(g));
+                return titleMatch && filterMatch;
+            })
+            .forEach((pairing, index) => {
             const pairingCode = `${pairing.gears[0]}${pairing.gears[1]} / ${pairing.gears[1]}${pairing.gears[0]}`;
-            const gradientClass = gradientClasses[index % gradientClasses.length];
+            const gradientClass = gradientClasses[uniquePairings.indexOf(pairing) % gradientClasses.length];
             
             const card = document.createElement('div');
             card.className = `pairing-card rounded-xl text-center cursor-pointer flex flex-col justify-center items-center h-48 p-4 gradient-animate ${gradientClass}`;
@@ -641,8 +677,27 @@ document.addEventListener('DOMContentLoaded', () => {
             card.addEventListener('click', () => callback(pairing.id));
         });
     }
+    
+    // Initial Population
+    ['W','I','D','G','E','T'].forEach(genius => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-btn px-3 py-1 bg-gray-700 rounded-full text-sm font-bold transition-all';
+        btn.textContent = genius;
+        btn.dataset.filter = genius;
+        filterContainer.appendChild(btn);
+        btn.addEventListener('click', () => {
+            btn.classList.toggle('active');
+            if (activeFilters.has(genius)) {
+                activeFilters.delete(genius);
+            } else {
+                activeFilters.add(genius);
+            }
+            populateGrid(pairingGrid, showResults);
+        });
+    });
 
     populateGrid(pairingGrid, showResults);
+    searchInput.addEventListener('input', () => populateGrid(pairingGrid, showResults));
     
     backButton.addEventListener('click', () => switchScreen('selectionScreen'));
     backToResultsButton.addEventListener('click', () => switchScreen('resultsScreen'));
