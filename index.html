@@ -553,7 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dynamicsHTML += '</div><div>';
         if (dynamics.frictions.length > 0) {
             dynamicsHTML += `<h4 class="font-extrabold text-xl text-brand-red mb-4">Potential Friction Points</h4><ul class="space-y-3 list-disc list-inside text-gray-300">`;
-            dynamics.frictions.forEach(f => dynamicsHTML += `<li>${f.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>').replace(/\*(.*?)\*/g, '<em class="text-brand-yellow">$1</em>')}</li>`);
+            dynamics.frictions.forEach(f => dynamicsHTML += `<li>${f.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>').replace(/\*(.*?)\*/g, '<em class="text-brand-red">$1</em>')}</li>`);
             dynamicsHTML += `</ul>`;
         }
         dynamicsHTML += '</div>';
