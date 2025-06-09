@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Victory Values & Genius Navigator</title>
+    <title>Victory Values & Working Genius Navigator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://use.typekit.net/jhs3sih.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -98,10 +98,20 @@
         .gradient-14 { background-image: linear-gradient(45deg, #0388b3, #d8ba0f, #d03c40); }
         .gradient-15 { background-image: linear-gradient(45deg, #2f1749, #2dacb2, #d8ba0f); }
         
-        .filter-btn.active {
-            background-color: #0388b3; /* brand-blue */
-            color: white;
-            box-shadow: 0 0 15px rgba(3, 136, 179, 0.7);
+        /* Filter Gear Styles */
+        .filter-gear .gear-shape {
+            transition: fill 0.2s ease-in-out;
+            fill: #4b5563; /* gray-600 */
+        }
+        .filter-gear:hover .gear-shape {
+             fill: #6f7f8e; /* brand-gray */
+        }
+        .filter-gear.active .gear-shape {
+            fill: #0388b3; /* brand-blue */
+            filter: drop-shadow(0 0 8px rgba(3, 136, 179, 0.7));
+        }
+        .filter-gear.active .gear-text {
+            fill: white;
         }
 
         /* PDF Export Styles */
@@ -121,7 +131,7 @@
         <!-- Screen 1: Selection -->
         <div id="selectionScreen" class="screen visible-screen">
             <div class="text-center mb-10">
-                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-2 pb-2 bg-clip-text text-transparent bg-gradient-to-r from-brand-teal to-brand-blue">Victory Values & Genius Navigator</h1>
+                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-2 pb-2 bg-clip-text text-transparent bg-gradient-to-r from-brand-teal to-brand-blue">Victory Values & Working Genius Navigator</h1>
                 <p class="text-lg md:text-xl text-gray-400 font-semibold">Discover how your unique genius connects with our core values.</p>
             </div>
             
@@ -129,8 +139,8 @@
             <div class="mb-8 p-4 bg-gray-800/20 rounded-xl backdrop-blur-sm border border-gray-700">
                 <div class="flex flex-col md:flex-row gap-4 items-center">
                     <input type="text" id="searchInput" placeholder="Search by pairing name..." class="w-full md:w-1/3 p-2 rounded-lg bg-gray-700 text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-blue" title="Search by pairing name (e.g., 'Dreamer', 'Driver').">
-                    <div class="flex-grow">
-                        <h4 class="font-semibold text-gray-300 mb-2 text-left md:text-center">Click to Filter by Genius</h4>
+                    <div class="flex-grow flex items-center justify-start md:justify-center flex-wrap gap-4">
+                        <h4 class="font-semibold text-gray-300 hidden md:block">Filter by Genius:</h4>
                         <div id="filterContainer" class="flex flex-wrap gap-2 justify-start md:justify-center" title="Click one or more geniuses to filter the grid. Click again to remove a filter.">
                             <!-- Filter buttons will be inserted here -->
                         </div>
@@ -145,28 +155,29 @@
 
         <!-- Screen 2: Results Dashboard -->
         <div id="resultsScreen" class="screen hidden-screen">
-             <div class="flex justify-between items-center mb-6" id="results-buttons">
-                <button id="backButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg inline-flex items-center transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                    </svg>
-                    Back to All Pairings
-                </button>
-                <div class="flex gap-4">
-                    <button id="exportProfileButton" class="bg-brand-teal hover:opacity-90 text-white font-bold py-2 px-4 rounded-lg inline-flex items-center transition-opacity">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                        Export to PDF
-                    </button>
-                    <button id="compareButton" class="bg-brand-blue hover:opacity-90 text-white font-bold py-2 px-4 rounded-lg inline-flex items-center transition-opacity">
-                        Compare Profiles
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+            <div id="profileExportContainer">
+                <div class="flex justify-between items-center mb-6" id="results-buttons">
+                    <button id="backButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg inline-flex items-center transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                         </svg>
+                        Back to All Pairings
                     </button>
+                    <div class="flex gap-4">
+                        <button id="exportProfileButton" class="bg-brand-teal hover:opacity-90 text-white font-bold py-2 px-4 rounded-lg inline-flex items-center transition-opacity">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                            Export to PDF
+                        </button>
+                        <button id="compareButton" class="bg-brand-blue hover:opacity-90 text-white font-bold py-2 px-4 rounded-lg inline-flex items-center transition-opacity">
+                            Compare Profiles
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            <div id="profileExportContent">
+
                 <!-- Profile Header -->
                 <div class="bg-gray-800/20 rounded-xl p-6 md:p-8 mb-8 text-center shadow-lg backdrop-blur-sm border border-gray-700">
                     <div id="resultsGears" class="flex justify-center items-center gap-4 mb-4">
@@ -232,7 +243,7 @@
                 </div>
 
 
-                <!-- NEW: Integrated Values Dashboard -->
+                <!-- Integrated Values Dashboard -->
                 <div class="bg-gray-800/20 rounded-xl p-6 md:p-8 mb-8 shadow-lg backdrop-blur-sm border border-gray-700 pdf-page-break">
                     <h3 class="text-2xl font-extrabold mb-6 text-center">Your Values Dashboard</h3>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -453,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
             synergies.push(`You share a common **${user1.focus}**. You'll naturally understand and value the same priorities in your work. *Conversation starter: What's one way we can lean into this shared focus to make a bigger impact?*`);
             frictions.push(`Because you share the same focus, you may have a shared blindspot. *Conversation starter: Who on our team can help us pay attention to the areas we might naturally overlook?*`);
         } else {
-            synergies.push(`Your different areas of focus are a major asset. Together, you cover a wider range of priorities, from **${user1.focus}** to **${user2.focus}**. *Conversation starter: How can we intentionally leverage this a project to ensure all angles are covered?*`);
+            synergies.push(`Your different areas of focus are a major asset. Together, you cover a wider range of priorities, from **${user1.focus}** to **${user2.focus}**. *Conversation starter: On our next project, how can we intentionally leverage our different focuses to ensure all angles are covered?*`);
             frictions.push(`Your different areas of focus mean you may not always see the importance of what the other person is prioritizing. *Conversation starter: How can we actively appreciate and make space for both of your priorities on projects?*`);
         }
 
@@ -507,6 +518,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     <text x="50" y="50" font-size="28" font-weight="800" fill="#1f1e1e" text-anchor="middle" dy=".3em">${type}</text>
                 </svg>
             </div>
+        `;
+    }
+
+    function createFilterGearSVG(type) {
+        return `
+            <svg class="w-10 h-10" viewBox="0 0 100 100">
+                <path class="gear-shape" d="M99,50 A49,49 0 0,1 50,99 L50,89 A39,39 0 0,0 89,50 Z M50,1 A49,49 0 0,1 99,50 L89,50 A39,39 0 0,0 50,11 Z M1,50 A49,49 0 0,1 50,1 L50,11 A39,39 0 0,0 11,50 Z M50,99 A49,49 0 0,1 1,50 L11,50 A39,39 0 0,0 50,89 Z" />
+                <circle class="gear-shape" cx="50" cy="50" r="30" />
+                <text class="gear-text" x="50" y="50" font-size="28" font-weight="800" fill="#fff" text-anchor="middle" dy=".3em">${type}</text>
+            </svg>
         `;
     }
 
@@ -716,8 +737,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial Population
     ['W','I','D','G','E','T'].forEach(genius => {
         const btn = document.createElement('button');
-        btn.className = 'filter-btn px-3 py-1 bg-gray-700 rounded-full text-sm font-bold transition-all';
-        btn.textContent = genius;
+        btn.className = 'filter-gear rounded-full transition-all focus:outline-none';
+        btn.innerHTML = createFilterGearSVG(genius);
         btn.dataset.filter = genius;
         filterContainer.appendChild(btn);
         btn.addEventListener('click', () => {
@@ -753,7 +774,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     exportProfileButton.addEventListener('click', () => {
-        const element = document.getElementById('profileExportContainer');
+        const element = document.getElementById('profileExportContent');
         const data = pairingsData[currentUserPairingId];
         const opt = {
             margin:       0.5,
@@ -762,17 +783,8 @@ document.addEventListener('DOMContentLoaded', () => {
             html2canvas:  { scale: 2, backgroundColor: '#1f1e1e', useCORS: true },
             jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
-        // Hide buttons before printing
-        document.getElementById('backButton').style.visibility = 'hidden';
-        document.getElementById('compareButton').style.visibility = 'hidden';
-        exportProfileButton.style.visibility = 'hidden';
         
-        html2pdf().set(opt).from(element).save().then(() => {
-             // Show buttons after printing
-            document.getElementById('backButton').style.visibility = 'visible';
-            document.getElementById('compareButton').style.visibility = 'visible';
-            exportProfileButton.style.visibility = 'visible';
-        });
+        html2pdf().set(opt).from(element).save();
     });
     
     exportComparisonButton.addEventListener('click', () => {
