@@ -6,6 +6,7 @@
     <title>Victory Values & Genius Navigator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://use.typekit.net/jhs3sih.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         body {
             font-family: 'proxima-nova', sans-serif;
@@ -103,6 +104,11 @@
             box-shadow: 0 0 15px rgba(3, 136, 179, 0.7);
         }
 
+        /* PDF Export Styles */
+        .pdf-page-break {
+            page-break-before: always !important;
+        }
+
     </style>
 </head>
 <body class="bg-brand-dark text-white min-h-screen">
@@ -139,110 +145,119 @@
 
         <!-- Screen 2: Results Dashboard -->
         <div id="resultsScreen" class="screen hidden-screen">
-            <div class="flex justify-between items-center mb-6">
+             <div class="flex justify-between items-center mb-6" id="results-buttons">
                 <button id="backButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg inline-flex items-center transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Back to All Pairings
                 </button>
-                <button id="compareButton" class="bg-brand-blue hover:opacity-90 text-white font-bold py-2 px-4 rounded-lg inline-flex items-center transition-opacity">
-                    Compare Profiles
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-                    </svg>
-                </button>
-            </div>
-
-
-            <!-- Profile Header -->
-            <div class="bg-gray-800/20 rounded-xl p-6 md:p-8 mb-8 text-center shadow-lg backdrop-blur-sm border border-gray-700">
-                <div id="resultsGears" class="flex justify-center items-center gap-4 mb-4">
-                    <!-- Gears will be inserted here -->
-                </div>
-                <h2 id="resultsHeader" class="text-3xl md:text-4xl font-extrabold"></h2>
-                <p id="resultsDescription" class="text-gray-400 mt-2 max-w-3xl mx-auto font-semibold"></p>
-                <div class="border-t border-gray-700 mt-6 pt-6 grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-                    <div>
-                        <h4 class="flex items-center justify-center font-bold text-lg text-brand-yellow mb-1">
-                           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                           Natural Pace
-                        </h4>
-                        <p id="resultsPace" class="text-gray-300"></p>
-                    </div>
-                     <div>
-                        <h4 class="flex items-center justify-center font-bold text-lg text-brand-purple mb-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                           Natural Focus
-                        </h4>
-                        <p id="resultsFocus" class="text-gray-300"></p>
-                    </div>
+                <div class="flex gap-4">
+                    <button id="exportProfileButton" class="bg-brand-teal hover:opacity-90 text-white font-bold py-2 px-4 rounded-lg inline-flex items-center transition-opacity">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        Export to PDF
+                    </button>
+                    <button id="compareButton" class="bg-brand-blue hover:opacity-90 text-white font-bold py-2 px-4 rounded-lg inline-flex items-center transition-opacity">
+                        Compare Profiles
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                        </svg>
+                    </button>
                 </div>
             </div>
-            
-            <!-- Craves & Crushes Section -->
-            <div class="bg-gray-800/20 rounded-xl p-6 md:p-8 mb-8 shadow-lg backdrop-blur-sm border border-gray-700">
-                <h3 class="text-2xl font-extrabold mb-6 text-center">Your Genius Profile: What Energizes & Drains You</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- Craves Column -->
-                    <div>
-                        <h4 class="flex items-center font-extrabold text-xl text-brand-teal mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                            </svg>
-                            You Crave... (Energizers)
-                        </h4>
-                        <div id="resultsCraves" class="space-y-4">
-                           <!-- Craves content will be inserted here -->
+
+            <div id="profileExportContent">
+                <!-- Profile Header -->
+                <div class="bg-gray-800/20 rounded-xl p-6 md:p-8 mb-8 text-center shadow-lg backdrop-blur-sm border border-gray-700">
+                    <div id="resultsGears" class="flex justify-center items-center gap-4 mb-4">
+                        <!-- Gears will be inserted here -->
+                    </div>
+                    <h2 id="resultsHeader" class="text-3xl md:text-4xl font-extrabold"></h2>
+                    <p id="resultsDescription" class="text-gray-400 mt-2 max-w-3xl mx-auto font-semibold"></p>
+                    <div class="border-t border-gray-700 mt-6 pt-6 grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                        <div>
+                            <h4 class="flex items-center justify-center font-bold text-lg text-brand-yellow mb-1">
+                               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                               Natural Pace
+                            </h4>
+                            <p id="resultsPace" class="text-gray-300"></p>
                         </div>
-                    </div>
-                    <!-- Crushes Column -->
-                    <div>
-                        <h4 class="flex items-center font-extrabold text-xl text-brand-red mb-4">
-                           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
-                           </svg>
-                            You're Crushed By... (Drainers)
-                        </h4>
-                        <div id="resultsCrushes" class="space-y-4">
-                           <!-- Crushes content will be inserted here -->
+                         <div>
+                            <h4 class="flex items-center justify-center font-bold text-lg text-brand-purple mb-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                               Natural Focus
+                            </h4>
+                            <p id="resultsFocus" class="text-gray-300"></p>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- How to Work with Me Section (Prominent) -->
-            <div class="bg-gray-800/20 rounded-xl p-6 md:p-8 mb-8 shadow-lg backdrop-blur-sm border border-gray-700">
-                <h3 class="text-2xl font-extrabold mb-4 text-brand-blue">How to Work With Me</h3>
-                <div id="howToWorkContainer" class="space-y-3 text-gray-300">
-                    <!-- How to work with me tips will be inserted here -->
-                </div>
-            </div>
-
-
-            <!-- Final 2-Column Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Values Alignment Spectrum -->
-                <div class="bg-gray-800/20 rounded-xl p-6 md:p-8 shadow-lg backdrop-blur-sm border border-gray-700">
-                    <h3 class="text-2xl font-extrabold mb-6">Your Values Alignment</h3>
-                    <p class="text-gray-400 mb-6 -mt-4 font-semibold">Click on a value to see the 'why' behind its rank.</p>
-                    <div id="valuesSpectrum" class="space-y-4">
-                        <!-- Value bars will be inserted here -->
-                    </div>
-                </div>
-
-                <!-- Right Column for Strengths, Growth -->
-                <div class="space-y-8">
-                    <div class="bg-gray-800/20 rounded-xl p-6 md:p-8 shadow-lg backdrop-blur-sm border border-gray-700">
-                        <h3 class="text-2xl font-extrabold mb-4 text-brand-teal">Lean Into Your Top Values</h3>
-                        <div id="strengthsContainer" class="space-y-4 text-gray-300">
-                            <!-- Strengths will be inserted here -->
+                
+                <!-- Genius Profile: Craves & Crushes -->
+                <div class="bg-gray-800/20 rounded-xl p-6 md:p-8 mb-8 shadow-lg backdrop-blur-sm border border-gray-700 pdf-page-break">
+                    <h3 class="text-2xl font-extrabold mb-6 text-center">Your Genius Profile: What Energizes & Drains You</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Craves Column -->
+                        <div>
+                            <h4 class="flex items-center font-extrabold text-xl text-brand-teal mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                You Crave... <span class="text-brand-teal ml-1 font-semibold">(Energizers)</span>
+                            </h4>
+                            <div id="resultsCraves" class="space-y-4">
+                               <!-- Craves content will be inserted here -->
+                            </div>
+                        </div>
+                        <!-- Crushes Column -->
+                        <div>
+                            <h4 class="flex items-center font-extrabold text-xl text-brand-red mb-4">
+                               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
+                               </svg>
+                                You're Crushed By... <span class="text-brand-red ml-1 font-semibold">(Drainers)</span>
+                            </h4>
+                            <div id="resultsCrushes" class="space-y-4">
+                               <!-- Crushes content will be inserted here -->
+                            </div>
                         </div>
                     </div>
-                    <div class="bg-gray-800/20 rounded-xl p-6 md:p-8 shadow-lg backdrop-blur-sm border border-gray-700">
-                        <h3 class="text-2xl font-extrabold mb-4 text-brand-yellow">Your Growth Opportunity</h3>
-                        <div id="growthContainer" class="space-y-4 text-gray-300">
-                            <!-- Growth area will be inserted here -->
+                </div>
+                
+                <!-- How to Work with Me Section -->
+                <div class="bg-gray-800/20 rounded-xl p-6 md:p-8 mb-8 shadow-lg backdrop-blur-sm border border-gray-700 pdf-page-break">
+                    <h3 class="text-2xl font-extrabold mb-4 text-brand-blue">How to Work With Me</h3>
+                    <div id="howToWorkContainer" class="space-y-3 text-gray-300">
+                        <!-- How to work with me tips will be inserted here -->
+                    </div>
+                </div>
+
+
+                <!-- NEW: Integrated Values Dashboard -->
+                <div class="bg-gray-800/20 rounded-xl p-6 md:p-8 mb-8 shadow-lg backdrop-blur-sm border border-gray-700 pdf-page-break">
+                    <h3 class="text-2xl font-extrabold mb-6 text-center">Your Values Dashboard</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Left Column: Values Alignment Spectrum -->
+                        <div>
+                            <h4 class="text-xl font-bold mb-4">Values Alignment</h4>
+                             <p class="text-gray-400 mb-6 -mt-2 font-semibold">Click on a value to see the 'why' behind its rank.</p>
+                            <div id="valuesSpectrum" class="space-y-4">
+                                <!-- Value bars will be inserted here -->
+                            </div>
+                        </div>
+                        <!-- Right Column: Strengths & Growth -->
+                        <div class="space-y-8">
+                            <div class="bg-gray-800/20 rounded-xl p-6 shadow-inner">
+                                <h4 class="text-xl font-extrabold mb-4 text-brand-teal">Lean Into Your Top Values</h4>
+                                <div id="strengthsContainer" class="space-y-4 text-gray-300">
+                                    <!-- Strengths will be inserted here -->
+                                </div>
+                            </div>
+                            <div class="bg-gray-800/20 rounded-xl p-6 shadow-inner">
+                                <h4 class="text-xl font-extrabold mb-4 text-brand-yellow">Your Growth Opportunity</h4>
+                                <div id="growthContainer" class="space-y-4 text-gray-300">
+                                    <!-- Growth area will be inserted here -->
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -251,12 +266,18 @@
 
         <!-- Screen 3: Team Dynamics -->
         <div id="dynamicsScreen" class="screen hidden-screen">
-             <button id="backToResultsButton" class="mb-6 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg inline-flex items-center transition-colors">
+             <div class="flex justify-between items-center mb-6" id="dynamics-buttons">
+                <button id="backToResultsButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg inline-flex items-center transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                     Back to My Profile
                 </button>
+                <button id="exportComparisonButton" class="bg-brand-teal hover:opacity-90 text-white font-bold py-2 px-4 rounded-lg inline-flex items-center transition-opacity">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                    Export to PDF
+                </button>
+            </div>
             <div id="teammateSelection" class="text-center">
                 <h2 class="text-3xl font-extrabold mb-4">Select a Profile to Compare</h2>
                 <div id="teammatePairingGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
@@ -264,14 +285,14 @@
                 </div>
             </div>
 
-            <div id="comparisonView" class="hidden mt-8">
+            <div id="comparisonContainer" class="hidden mt-8">
                  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <!-- User 1 Profile -->
                     <div id="user1Profile" class="bg-gray-800/20 rounded-xl p-6 shadow-lg border-2 border-brand-blue"></div>
                     <!-- User 2 Profile -->
                     <div id="user2Profile" class="bg-gray-800/20 rounded-xl p-6 shadow-lg border-2 border-brand-teal"></div>
                  </div>
-                 <div class="mt-8 bg-gray-800/20 rounded-xl p-6 shadow-lg">
+                 <div class="mt-8 bg-gray-800/20 rounded-xl p-6 shadow-lg pdf-page-break">
                     <h3 class="text-2xl font-extrabold mb-4 text-center">Collaboration Styles</h3>
                     <div id="dynamicsResults" class="grid grid-cols-1 md:grid-cols-2 gap-8">
                        <!-- Synergies and Frictions will be injected here -->
@@ -452,6 +473,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const backToResultsButton = document.getElementById('backToResultsButton');
     const searchInput = document.getElementById('searchInput');
     const filterContainer = document.getElementById('filterContainer');
+    const exportProfileButton = document.getElementById('exportProfileButton');
+    const exportComparisonButton = document.getElementById('exportComparisonButton');
     
     const resultsHeader = document.getElementById('resultsHeader');
     const resultsDescription = document.getElementById('resultsDescription');
@@ -466,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const howToWorkContainer = document.getElementById('howToWorkContainer');
     
     const teammateSelection = document.getElementById('teammateSelection');
-    const comparisonView = document.getElementById('comparisonView');
+    const comparisonView = document.getElementById('comparisonContainer'); // Corrected ID
     const user1Profile = document.getElementById('user1Profile');
     const user2Profile = document.getElementById('user2Profile');
     const dynamicsResults = document.getElementById('dynamicsResults');
@@ -498,14 +521,14 @@ document.addEventListener('DOMContentLoaded', () => {
         
         resultsCraves.innerHTML = data.craves.map(craveKey => `
             <div class="bg-gray-800/20 p-4 rounded-lg border border-gray-700 h-full">
-                <h5 class="font-bold text-lg">${craveKey}</h5>
+                <h5 class="font-bold text-lg text-brand-teal">${craveKey}</h5>
                 <p class="text-sm text-gray-300">${cravesDetails[craveKey]}</p>
             </div>
         `).join('');
         
         resultsCrushes.innerHTML = data.crushes.map(crushKey => `
             <div class="bg-gray-800/20 p-4 rounded-lg border border-gray-700 h-full">
-                <h5 class="font-bold text-lg">${crushKey}</h5>
+                <h5 class="font-bold text-lg text-brand-red">${crushKey}</h5>
                 <p class="text-sm text-gray-300">${crushesDetails[crushKey]}</p>
             </div>
         `).join('');
@@ -562,6 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         teammateSelection.classList.add('hidden');
         comparisonView.classList.remove('hidden');
+        user2Profile.dataset.pairingId = teammateId; // Store teammate id for export
 
         user1Profile.innerHTML = generateProfileHTML(user1Data, 'Your Profile', 'border-brand-blue');
         user2Profile.innerHTML = generateProfileHTML(user2Data, 'Their Profile', 'border-brand-teal');
@@ -667,8 +691,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return titleMatch && filterMatch;
             })
             .forEach((pairing, index) => {
-            if (gridElement.id === 'teammatePairingGrid' && pairing.id === currentUserPairingId) return;
-
             const pairingCode = `${pairing.gears[0]}${pairing.gears[1]} / ${pairing.gears[1]}${pairing.gears[0]}`;
             const gradientClass = gradientClasses[uniquePairings.indexOf(pairing) % gradientClasses.length];
             
@@ -728,6 +750,44 @@ document.addEventListener('DOMContentLoaded', () => {
             const rationale = container.querySelector('.value-rationale');
             rationale.classList.toggle('expanded');
         }
+    });
+
+    exportProfileButton.addEventListener('click', () => {
+        const element = document.getElementById('profileExportContainer');
+        const data = pairingsData[currentUserPairingId];
+        const opt = {
+            margin:       0.5,
+            filename:     `${data.title.replace(/ /g, '-')}-Profile.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, backgroundColor: '#1f1e1e', useCORS: true },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        // Hide buttons before printing
+        document.getElementById('backButton').style.visibility = 'hidden';
+        document.getElementById('compareButton').style.visibility = 'hidden';
+        exportProfileButton.style.visibility = 'hidden';
+        
+        html2pdf().set(opt).from(element).save().then(() => {
+             // Show buttons after printing
+            document.getElementById('backButton').style.visibility = 'visible';
+            document.getElementById('compareButton').style.visibility = 'visible';
+            exportProfileButton.style.visibility = 'visible';
+        });
+    });
+    
+    exportComparisonButton.addEventListener('click', () => {
+        const element = document.getElementById('comparisonContainer');
+        const user1Data = pairingsData[currentUserPairingId];
+        const user2Data = pairingsData[document.querySelector('#user2Profile').dataset.pairingId];
+
+        const opt = {
+            margin:       0.5,
+            filename:     `${user1Data.title}-vs-${user2Data.title}-Comparison.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, backgroundColor: '#1f1e1e', useCORS: true },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
     });
 
 });
