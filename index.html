@@ -98,10 +98,22 @@
         .gradient-14 { background-image: linear-gradient(45deg, #0388b3, #d8ba0f, #d03c40); }
         .gradient-15 { background-image: linear-gradient(45deg, #2f1749, #2dacb2, #d8ba0f); }
         
-        /* Filter Gear Styles */
+        .filter-btn.active {
+            background-color: #0388b3; /* brand-blue */
+            color: white;
+            box-shadow: 0 0 15px rgba(3, 136, 179, 0.7);
+        }
+
+        /* PDF Export Styles */
+        .pdf-page-break {
+            page-break-before: always !important;
+        }
         .filter-gear .gear-shape {
             transition: fill 0.2s ease-in-out;
             fill: #4b5563; /* gray-600 */
+        }
+        .filter-gear .gear-text {
+            fill: white;
         }
         .filter-gear:hover .gear-shape {
              fill: #6f7f8e; /* brand-gray */
@@ -112,11 +124,6 @@
         }
         .filter-gear.active .gear-text {
             fill: white;
-        }
-
-        /* PDF Export Styles */
-        .pdf-page-break {
-            page-break-before: always !important;
         }
 
     </style>
@@ -520,16 +527,17 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
     }
-
+    
     function createFilterGearSVG(type) {
         return `
             <svg class="w-10 h-10" viewBox="0 0 100 100">
                 <path class="gear-shape" d="M99,50 A49,49 0 0,1 50,99 L50,89 A39,39 0 0,0 89,50 Z M50,1 A49,49 0 0,1 99,50 L89,50 A39,39 0 0,0 50,11 Z M1,50 A49,49 0 0,1 50,1 L50,11 A39,39 0 0,0 11,50 Z M50,99 A49,49 0 0,1 1,50 L11,50 A39,39 0 0,0 50,89 Z" />
                 <circle class="gear-shape" cx="50" cy="50" r="30" />
-                <text class="gear-text" x="50" y="50" font-size="28" font-weight="800" fill="#fff" text-anchor="middle" dy=".3em">${type}</text>
+                <text class="gear-text" x="50" y="50" font-size="28" font-weight="800" fill="white" text-anchor="middle" dy=".3em">${type}</text>
             </svg>
         `;
     }
+
 
     function showResults(pairingId) {
         currentUserPairingId = pairingId;
